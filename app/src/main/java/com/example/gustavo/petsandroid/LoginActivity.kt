@@ -7,6 +7,7 @@ import android.app.LoaderManager.LoaderCallbacks
 import android.content.Context
 import android.content.Intent
 import android.content.Loader
+import android.content.SharedPreferences
 import android.database.Cursor
 import android.os.AsyncTask
 import android.os.Build
@@ -36,10 +37,14 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
      */
     private var mAuthTask: UserLoginTask? = null
     private var callbackManager: CallbackManager? = null
+    private lateinit var preferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        preferences = getSharedPreferences("data", Context.MODE_PRIVATE)
+
         // Set up the login form.
         password.setOnEditorActionListener(TextView.OnEditorActionListener { _, id, _ ->
             if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
@@ -51,15 +56,15 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
         email_sign_in_button.setOnClickListener { attemptLogin() }
 
-        FacebookSdk.sdkInitialize(applicationContext)
-        AppEventsLogger.activateApp(this)
+        AppEventsLogger.activateApp(applicationContext)
 
         val accessToken = AccessToken.getCurrentAccessToken()
-        val isLoggedIn = accessToken != null && !accessToken.isExpired()
+        val isLoggedIn = (accessToken != null &&
+                !accessToken.isExpired()) ||
+                preferences.getBoolean("login", false)
 
         if (isLoggedIn) {
-            val intent = MainActivity.newIntent(applicationContext)
-            startActivity(intent)
+            startActivity((Intent(applicationContext, HomeActivity::class.java)))
             finish()
         }
 
@@ -73,8 +78,10 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                     object : FacebookCallback<LoginResult> {
                         override fun onSuccess(loginResult: LoginResult) {
                             Log.d("MainActivity", "Facebook token: " + loginResult.accessToken.token)
-                            val intent = MainActivity.newIntent(applicationContext)
-                            startActivity(intent)
+                            val editor = preferences.edit()
+                            editor.putBoolean ("login", true)
+                            editor.apply()
+                            startActivity((Intent(applicationContext, HomeActivity::class.java)))
                             finish()
                         }
 
@@ -229,8 +236,10 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             mAuthTask = null
 
             if (success!!) {
-                val intent = MainActivity.newIntent(applicationContext)
-                startActivity(intent)
+                val editor = preferences.edit ()
+                editor.putBoolean ("login", true)
+                editor.apply ()
+                startActivity((Intent(applicationContext, HomeActivity::class.java)))
                 finish()
             } else {
                 password.error = getString(R.string.error_incorrect_password)
@@ -265,11 +274,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
          * TODO: remove after connecting to a real authentication system.
          */
         private val DUMMY_CREDENTIALS = arrayOf("admin@admin:admin", "a@a:1234")
-
-        fun newIntent(context: Context): Intent {
-            val intent = Intent(context, LoginActivity::class.java)
-            return intent
-        }
 
     }
 }
