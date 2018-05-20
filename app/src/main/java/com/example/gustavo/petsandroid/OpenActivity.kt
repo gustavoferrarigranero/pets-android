@@ -14,6 +14,6 @@ class OpenActivity : AppCompatActivity() {
         Handler().postDelayed({
             startActivity((Intent(applicationContext, LoginActivity::class.java)))
             finish()
-        }, 4000)
+        }, 1000)
     }
 }

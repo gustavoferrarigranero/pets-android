@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -43,6 +42,31 @@ public class Utils {
                 profileList.add(profile);
             }
             return profileList;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static ArrayList<Pet> loadPets() {
+        try {
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            JSONObject obj = new JSONObject();
+            obj.put("url", "https://cdn-petz.stoom.com.br/novaLoja/images/menu/cachorro.jpg");
+            obj.put("name", "Jack");
+            obj.put("age", "6 meses");
+
+            JSONArray array = (new JSONArray()).put(
+                    obj
+            )
+                    .put(obj);
+            ArrayList<Pet> petList = new ArrayList<>();
+            for (int i = 0; i < array.length(); i++) {
+                Pet pet = gson.fromJson(array.getString(i), Pet.class);
+                petList.add(pet);
+            }
+            return petList;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

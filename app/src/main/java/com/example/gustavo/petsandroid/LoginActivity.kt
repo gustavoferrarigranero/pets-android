@@ -56,8 +56,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
         email_sign_in_button.setOnClickListener { attemptLogin() }
 
-        AppEventsLogger.activateApp(applicationContext)
-
         val accessToken = AccessToken.getCurrentAccessToken()
         val isLoggedIn = (accessToken != null &&
                 !accessToken.isExpired()) ||
