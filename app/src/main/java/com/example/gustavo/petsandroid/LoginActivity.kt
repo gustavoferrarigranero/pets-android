@@ -24,6 +24,9 @@ import com.facebook.appevents.AppEventsLogger
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
 import kotlinx.android.synthetic.main.activity_login.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 
 
@@ -95,6 +98,27 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
                     })
         })
 
+        val call = RetrofitInitializer().userService().list()
+        call.enqueue(object: Callback<List<User>?> {
+            override fun onResponse(call: Call<List<User>?>?,
+                                    response: Response<List<User>?>?) {
+                response?.let {
+                    val notes = it.body()
+                    println(notes!![0].getName())
+                }
+            }
+
+            override fun onFailure(call: Call<List<User>?>?,
+                                   t: Throwable?) {
+            }
+        })
+
+
+
+    }
+
+    private fun users()/*: List<User> */{
+        // listas de exemplos
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
